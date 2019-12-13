@@ -8,12 +8,12 @@ namespace AdventOfCode.Solutions
         private string _programCode;
 
         public Day5 (ILoader loader) => _programCode = loader.ReadAllText("Input.txt");
-        
-        public string SolvePart1()
+
+        private string Solve(int input)
         {
             var program = new IntcodeProgram(_programCode);
             var computer = new IntcodeComputer(program);
-            computer.Inputs.Push(1);
+            computer.Inputs.Push(input);
 
             computer.RunToEnd();
 
@@ -21,9 +21,7 @@ namespace AdventOfCode.Solutions
             return $"All outputs: [{formattedOutputs}]";
         }
 
-        public string SolvePart2()
-        {
-            throw new System.NotImplementedException();
-        }
+        public string SolvePart1() => Solve(1);
+        public string SolvePart2() => Solve(5);
     }
 }

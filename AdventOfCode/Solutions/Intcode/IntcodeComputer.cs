@@ -44,6 +44,26 @@ namespace AdventOfCode.Solutions.Intcode
                         _program.Memory[statement.Parameter1.Value] = Inputs.Pop();
                         break;
 
+                    case OperationType.JumpIfTrue:
+                        if (ReadParameter(statement.Parameter1) != 0)
+                            programPosition = ReadParameter(statement.Parameter2);
+                        break;
+                    
+                    case OperationType.JumpIfFalse:
+                        if (ReadParameter(statement.Parameter1) == 0)
+                            programPosition = ReadParameter(statement.Parameter2);
+                        break;
+                    
+                    case OperationType.LessThan:
+                        _program.Memory[statement.Parameter3.Value] =
+                            ReadParameter(statement.Parameter1) < ReadParameter(statement.Parameter2) ? 1 : 0; 
+                        break;
+                    
+                    case OperationType.Equals:
+                        _program.Memory[statement.Parameter3.Value] =
+                            ReadParameter(statement.Parameter1) == ReadParameter(statement.Parameter2) ? 1 : 0; 
+                        break;
+                    
                     case OperationType.Halt:
                         return _program.Memory[0];
                 }
@@ -125,19 +145,27 @@ namespace AdventOfCode.Solutions.Intcode
             OperationType.Multiply => 3,
             OperationType.Input => 1,
             OperationType.Output => 1,
+            OperationType.JumpIfTrue => 2,
+            OperationType.JumpIfFalse => 2,
+            OperationType.LessThan => 3,
+            OperationType.Equals => 3,
             OperationType.Halt => 0
         };
 
         public override string ToString() => $"{Type}";
     }
-    
+
     public enum OperationType
     {
-        Add      = 1,
-        Multiply = 2,
-        Input    = 3,
-        Output   = 4,
-        Halt     = 99
+        Add         = 1,
+        Multiply    = 2,
+        Input       = 3,
+        Output      = 4,
+        JumpIfTrue  = 5,
+        JumpIfFalse = 6,
+        LessThan    = 7,
+        Equals      = 8,
+        Halt        = 99
     }
 
     public enum ParameterMode
