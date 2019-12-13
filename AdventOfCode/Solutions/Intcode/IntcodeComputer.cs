@@ -10,21 +10,28 @@ namespace AdventOfCode.Solutions.Intcode
     public class IntcodeComputer
     {
         private readonly IntcodeProgram _program;
-        
-        public IntcodeComputer(IntcodeProgram program) =>_program = program;
 
-        public Stack<int> Inputs { get; } = new Stack<int>();
-        public Stack<int> Outputs { get; } = new Stack<int>();
-
-        public int RunToEnd()
+        public IntcodeComputer(IntcodeProgram program, params int[] parameters)
         {
-            var programPosition = 0;
+            _program = program;
+            Inputs = new Queue<int>(parameters);
+        }
+
+        public State State { get; private set; } = State.NotStarted;
+        
+        public Queue<int> Inputs { get; }
+        public Queue<int> Outputs { get; } = new Queue<int>();
+
+        public int ProgramPosition { get; private set; } = 0;
+        
+        public int Run()
+        {
             while (true)
             {
-                var statementRaw = _program.Memory[programPosition .. Math.Min(programPosition + 4, _program.Memory.Length)];
+                var statementRaw = _program.Memory[ProgramPosition .. Math.Min(ProgramPosition + 4, _program.Memory.Length)];
                 var statement = Statement.Parse(statementRaw);
-                programPosition += statement.Length;
-                
+                ProgramPosition += statement.Length;
+
                 switch (statement.Operation.Type)
                 {
                     case OperationType.Add:
@@ -37,34 +44,43 @@ namespace AdventOfCode.Solutions.Intcode
                         break;
 
                     case OperationType.Output:
-                        Outputs.Push(ReadParameter(statement.Parameter1));
+                        Outputs.Enqueue(ReadParameter(statement.Parameter1));
                         break;
 
                     case OperationType.Input:
-                        _program.Memory[statement.Parameter1.Value] = Inputs.Pop();
+                        if (Inputs.TryDequeue(out var input))
+                            _program.Memory[statement.Parameter1.Value] = input;
+                        else
+                        {
+                            ProgramPosition -= statement.Length;
+                            State = State.WaitingForInput;
+                            return 0;
+                        }
+
                         break;
 
                     case OperationType.JumpIfTrue:
                         if (ReadParameter(statement.Parameter1) != 0)
-                            programPosition = ReadParameter(statement.Parameter2);
+                            ProgramPosition = ReadParameter(statement.Parameter2);
                         break;
-                    
+
                     case OperationType.JumpIfFalse:
                         if (ReadParameter(statement.Parameter1) == 0)
-                            programPosition = ReadParameter(statement.Parameter2);
+                            ProgramPosition = ReadParameter(statement.Parameter2);
                         break;
-                    
+
                     case OperationType.LessThan:
                         _program.Memory[statement.Parameter3.Value] =
-                            ReadParameter(statement.Parameter1) < ReadParameter(statement.Parameter2) ? 1 : 0; 
+                            ReadParameter(statement.Parameter1) < ReadParameter(statement.Parameter2) ? 1 : 0;
                         break;
-                    
+
                     case OperationType.Equals:
                         _program.Memory[statement.Parameter3.Value] =
-                            ReadParameter(statement.Parameter1) == ReadParameter(statement.Parameter2) ? 1 : 0; 
+                            ReadParameter(statement.Parameter1) == ReadParameter(statement.Parameter2) ? 1 : 0;
                         break;
-                    
+
                     case OperationType.Halt:
+                        State = State.Halted;
                         return _program.Memory[0];
                 }
             }
@@ -172,5 +188,12 @@ namespace AdventOfCode.Solutions.Intcode
     {
         Position  = 0,
         Immediate = 1
+    }
+
+    public enum State
+    {
+        NotStarted,
+        WaitingForInput,
+        Halted
     }
 }

@@ -13,9 +13,9 @@ namespace AdventOfCode.Solutions
         {
             var program = new IntcodeProgram(_programCode);
             var computer = new IntcodeComputer(program);
-            computer.Inputs.Push(input);
+            computer.Inputs.Enqueue(input);
 
-            computer.RunToEnd();
+            computer.Run();
 
             var formattedOutputs = string.Join(",", computer.Outputs.ToArray());
             return $"All outputs: [{formattedOutputs}]";

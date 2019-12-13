@@ -20,7 +20,7 @@ namespace Tests.Intcode
             var computer = new IntcodeComputer(program);
             
             // act & assert
-            computer.RunToEnd().Should().Be(expectedReturnCode);
+            computer.Run().Should().Be(expectedReturnCode);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Tests.Intcode
             var computer = new IntcodeComputer(program);
 
             // act
-            computer.RunToEnd();
+            computer.Run();
             
             // assert
             program.Memory[4].Should().Be(99);
@@ -52,11 +52,11 @@ namespace Tests.Intcode
             // arrange
             var program = new IntcodeProgram("3,0,4,0,99");
             var computer = new IntcodeComputer(program);
-            computer.Inputs.Push(input);
+            computer.Inputs.Enqueue(input);
             
             // act
-            computer.RunToEnd();
-            var output = computer.Outputs.Pop();
+            computer.Run();
+            var output = computer.Outputs.Dequeue();
             
             // assert
             output.Should().Be(input);
@@ -76,11 +76,11 @@ namespace Tests.Intcode
                                              "1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,"+
                                              "999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99");
             var computer = new IntcodeComputer(program);
-            computer.Inputs.Push(input);
+            computer.Inputs.Enqueue(input);
             
             // act
-            computer.RunToEnd();
-            var output = computer.Outputs.Pop();
+            computer.Run();
+            var output = computer.Outputs.Dequeue();
             
             // assert
             output.Should().Be(expectedOutput);
