@@ -11,10 +11,14 @@ namespace AdventOfCode.Solutions
         public string Input { get; set; }
 
         public Day7(ILoader loader) => Input = loader.ReadAllText("Input.txt");
+
+        public string SolvePart1() => $"highest signal that can be sent to the thrusters: {SolvePart1Internal()}";
+        public string SolvePart2() => $"highest signal that can be sent to the thrusters {SolvePart2Internal()}";
+        public int SolvePart1Internal() => Solve(new[] {0, 1, 2, 3, 4});
+        public int SolvePart2Internal() => Solve(new[] {5, 6, 7, 8, 9});
         
-        public int SolvePart1Internal()
+        public int Solve(int[] possiblePhaseSettings)
         {
-            var possiblePhaseSettings = new[] {0, 1, 2, 3, 4};
             var allSettigs =
                 from p1 in possiblePhaseSettings
                 from p2 in possiblePhaseSettings
@@ -25,8 +29,9 @@ namespace AdventOfCode.Solutions
                 where set.Distinct().Count() == 5
                 select set;
 
-            var allCalculations = allSettigs.Select(x => AmplifChainedLooped(x, 0))
-                                            .ToList();
+            var allCalculations =
+                allSettigs.Select(x => AmplifChainedLooped(x))
+                          .ToList();
 
             return allCalculations.Max();
         }
@@ -53,29 +58,5 @@ namespace AdventOfCode.Solutions
 
             return inputSignal;
         }
-
-        public int SolvePart2Internal()
-        {
-            var possiblePhaseSettings = new[] {5, 6, 7, 8, 9};
-            var allSettigs =
-                from p1 in possiblePhaseSettings
-                from p2 in possiblePhaseSettings
-                from p3 in possiblePhaseSettings
-                from p4 in possiblePhaseSettings
-                from p5 in possiblePhaseSettings
-                let set = new[] {p1, p2, p3, p4, p5}
-                where set.Distinct().Count() == 5
-                select set;
-
-            var allCalculations = allSettigs.Select(x => AmplifChainedLooped(x, 0))
-                                            .ToList();
-
-            return allCalculations.Max();
-        }
-
-
-        public string SolvePart1() => $"highest signal that can be sent to the thrusters: {SolvePart1Internal()}";
-
-        public string SolvePart2() => $"highest signal that can be sent to the thrusters {SolvePart2Internal()}";
     }
 }
