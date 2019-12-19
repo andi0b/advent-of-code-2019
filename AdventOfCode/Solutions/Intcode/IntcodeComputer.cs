@@ -14,21 +14,28 @@ namespace AdventOfCode.Solutions.Intcode
         public IntcodeComputer(IntcodeProgram program, params int[] parameters)
         {
             _program = program;
-            Inputs = new Queue<int>(parameters);
+            Inputs = new Queue<long>(parameters.Select(x => (long) x));
         }
 
         public State State { get; private set; } = State.NotStarted;
         
-        public Queue<int> Inputs { get; }
-        public Queue<int> Outputs { get; } = new Queue<int>();
+        public Queue<long> Inputs { get; }
+        public Queue<long> Outputs { get; } = new Queue<long>();
 
         public int ProgramPosition { get; private set; } = 0;
+
+        public long RelativeOffset { get; private set; } = 0;
         
-        public int Run()
+        public long Run()
         {
             while (true)
             {
-                var statementRaw = _program.Memory[ProgramPosition .. Math.Min(ProgramPosition + 4, _program.Memory.Length)];
+                var statementPositions = Enumerable.Range(ProgramPosition, 4);
+                var statementRaw = statementPositions
+                                  .Select(pos => _program.Memory.TryGetValue(pos, out var val) ? (long?) val : null)
+                                  .OfType<long>()
+                                  .ToArray();
+                
                 var statement = Statement.Parse(statementRaw);
                 ProgramPosition += statement.Length;
 
@@ -36,11 +43,11 @@ namespace AdventOfCode.Solutions.Intcode
                 {
                     case OperationType.Add:
                     case OperationType.Multiply:
-                        _program.Memory[statement.Parameter3.Value] = statement.Operation.Type switch
+                        WriteTo(statement.Parameter3, statement.Operation.Type switch
                         {
                             OperationType.Add => ReadParameter(statement.Parameter1) + ReadParameter(statement.Parameter2),
                             OperationType.Multiply => ReadParameter(statement.Parameter1) * ReadParameter(statement.Parameter2),
-                        };
+                        });
                         break;
 
                     case OperationType.Output:
@@ -49,7 +56,7 @@ namespace AdventOfCode.Solutions.Intcode
 
                     case OperationType.Input:
                         if (Inputs.TryDequeue(out var input))
-                            _program.Memory[statement.Parameter1.Value] = input;
+                            WriteTo(statement.Parameter1, input);
                         else
                         {
                             ProgramPosition -= statement.Length;
@@ -61,22 +68,24 @@ namespace AdventOfCode.Solutions.Intcode
 
                     case OperationType.JumpIfTrue:
                         if (ReadParameter(statement.Parameter1) != 0)
-                            ProgramPosition = ReadParameter(statement.Parameter2);
+                            ProgramPosition = (int) ReadParameter(statement.Parameter2);
                         break;
 
                     case OperationType.JumpIfFalse:
                         if (ReadParameter(statement.Parameter1) == 0)
-                            ProgramPosition = ReadParameter(statement.Parameter2);
+                            ProgramPosition = (int) ReadParameter(statement.Parameter2);
                         break;
 
                     case OperationType.LessThan:
-                        _program.Memory[statement.Parameter3.Value] =
-                            ReadParameter(statement.Parameter1) < ReadParameter(statement.Parameter2) ? 1 : 0;
+                        WriteTo(statement.Parameter3, ReadParameter(statement.Parameter1) < ReadParameter(statement.Parameter2) ? 1 : 0);
                         break;
 
                     case OperationType.Equals:
-                        _program.Memory[statement.Parameter3.Value] =
-                            ReadParameter(statement.Parameter1) == ReadParameter(statement.Parameter2) ? 1 : 0;
+                        WriteTo(statement.Parameter3, ReadParameter(statement.Parameter1) == ReadParameter(statement.Parameter2) ? 1 : 0);
+                        break;
+                    
+                    case OperationType.RelativeBaseOffset:
+                         RelativeOffset += ReadParameter(statement.Parameter1);
                         break;
 
                     case OperationType.Halt:
@@ -86,20 +95,44 @@ namespace AdventOfCode.Solutions.Intcode
             }
         }
 
-        public int ReadParameter(Parameter p) => p.Mode switch
+        public void WriteTo(Parameter p, long value)
+        {
+            switch (p.Mode)
+            {
+                case ParameterMode.Position:
+                    _program.Memory[p.Value] = value;
+                    break;
+                
+                case ParameterMode.Relative:
+                    _program.Memory[p.Value+  RelativeOffset] = value;
+                    break;
+                
+                case ParameterMode.Immediate:
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+        
+        public long ReadParameter(Parameter p) => p.Mode switch
         {
             ParameterMode.Immediate => p.Value,
-            ParameterMode.Position => _program.Memory[p.Value]
+            ParameterMode.Position => ReadValueAt(p.Value),
+            ParameterMode.Relative => ReadValueAt(p.Value +  RelativeOffset)
         };
+
+        public long ReadValueAt(long position) =>
+            _program.Memory.TryGetValue(position, out var val) ? val : 0;
     }
         
     public class IntcodeProgram
     {
-        public int[] Memory { get; }
+        public Dictionary<long, long> Memory { get; }
 
         public IntcodeProgram(string input)
         {
-            Memory = input.Split(',').Select(int.Parse).ToArray();
+            Memory = input.Split(',').Select(long.Parse).ToArray()
+                          .Select((x, i) => (x, i))
+                          .ToDictionary(t => (long)t.i, t => (long) t.x);
         }
 
         public override string ToString() => string.Join(",", Memory);
@@ -114,14 +147,14 @@ namespace AdventOfCode.Solutions.Intcode
 
         public int Length => Operation.ParameterCount + 1;
 
-        public static Statement Parse(int[] input)
+        public static Statement Parse(long[] input)
         {
-            var operationType = (OperationType) (ReadDigit(0, input[0]) + ReadDigit(1, input[0]) * 10);
+            var operationType = (OperationType) (ReadDigit(0, (int)input[0]) + ReadDigit(1, (int)input[0]) * 10);
             var operation = new Operation(operationType);
             
-            var param1Mode = (ParameterMode) ReadDigit(2, input[0]);
-            var param2Mode = (ParameterMode) ReadDigit(3, input[0]);
-            var param3Mode = (ParameterMode) ReadDigit(4, input[0]);
+            var param1Mode = (ParameterMode) ReadDigit(2, (int)input[0]);
+            var param2Mode = (ParameterMode) ReadDigit(3, (int)input[0]);
+            var param3Mode = (ParameterMode) ReadDigit(4, (int)input[0]);
             
             return new Statement
             {
@@ -139,14 +172,14 @@ namespace AdventOfCode.Solutions.Intcode
 
     public class Parameter
     {
-        public Parameter(ParameterMode mode, int value)
+        public Parameter(ParameterMode mode, long value)
         {
             Mode = mode;
             Value = value;
         }
 
         public ParameterMode Mode { get; }
-        public int Value { get; }
+        public long Value { get; }
 
         public override string ToString() => $"[{Mode}] {Value}";
     }
@@ -165,6 +198,7 @@ namespace AdventOfCode.Solutions.Intcode
             OperationType.JumpIfFalse => 2,
             OperationType.LessThan => 3,
             OperationType.Equals => 3,
+            OperationType.RelativeBaseOffset => 1,
             OperationType.Halt => 0
         };
 
@@ -173,21 +207,23 @@ namespace AdventOfCode.Solutions.Intcode
 
     public enum OperationType
     {
-        Add         = 1,
-        Multiply    = 2,
-        Input       = 3,
-        Output      = 4,
-        JumpIfTrue  = 5,
-        JumpIfFalse = 6,
-        LessThan    = 7,
-        Equals      = 8,
-        Halt        = 99
+        Add                = 1,
+        Multiply           = 2,
+        Input              = 3,
+        Output             = 4,
+        JumpIfTrue         = 5,
+        JumpIfFalse        = 6,
+        LessThan           = 7,
+        Equals             = 8,
+        RelativeBaseOffset = 9,
+        Halt               = 99
     }
 
     public enum ParameterMode
     {
         Position  = 0,
-        Immediate = 1
+        Immediate = 1,
+        Relative  = 2
     }
 
     public enum State

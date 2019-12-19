@@ -1,4 +1,6 @@
-﻿using AdventOfCode.Solutions;
+﻿using System.Linq;
+using System.Net.NetworkInformation;
+using AdventOfCode.Solutions;
 using AdventOfCode.Solutions.Intcode;
 using FluentAssertions;
 using Xunit;
@@ -84,6 +86,40 @@ namespace Tests.Intcode
             
             // assert
             output.Should().Be(expectedOutput);
+        }
+
+        [Fact]
+        public void LongExt_Itself()
+        {
+            var program = new IntcodeProgram("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
+            var computer = new IntcodeComputer(program);
+
+            computer.Run();
+
+            computer.Outputs.Should().BeEquivalentTo(new long[] {109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99});
+
+        }
+        
+        [Fact]
+        public void LongExt_SpecificNumber()
+        {
+            var program = new IntcodeProgram("104,1125899906842624,99");
+            var computer = new IntcodeComputer(program);
+
+            computer.Run();
+
+            computer.Outputs.Single().Should().Be(1125899906842624);
+        }
+
+        [Fact]
+        public void a()
+        {
+            var program = new IntcodeProgram("1102,34915192,34915192,7,4,7,99,0");
+            var computer = new IntcodeComputer(program);
+
+            computer.Run();
+
+            computer.Outputs.Single().ToString().Length.Should().Be(16);
         }
     }
 }

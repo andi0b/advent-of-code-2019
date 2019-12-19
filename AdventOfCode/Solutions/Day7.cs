@@ -52,7 +52,7 @@ namespace AdventOfCode.Solutions
                 {
                     computer.Inputs.Enqueue(inputSignal);
                     computer.Run();
-                    inputSignal = computer.Outputs.Dequeue();
+                    inputSignal = (int)computer.Outputs.Dequeue();
                 }
             }
 
