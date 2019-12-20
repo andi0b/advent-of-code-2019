@@ -3,11 +3,11 @@
 namespace AdventOfCode.Solutions
 {
     [Aoc(5)]
-    public class Day5 : IAocDay
+    public class Day05 : IAocDay
     {
         private string _programCode;
 
-        public Day5 (ILoader loader) => _programCode = loader.ReadAllText("Input.txt");
+        public Day05 (ILoader loader) => _programCode = loader.ReadAllText("Input.txt");
 
         private string Solve(int input)
         {

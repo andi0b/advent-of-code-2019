@@ -4,10 +4,10 @@ using System.Linq;
 namespace AdventOfCode.Solutions
 {
     [Aoc(2)]
-    public class Day2 : IAocDay
+    public class Day02 : IAocDay
     {
         private ILoader _loader;
-        public Day2(ILoader loader) => _loader = loader;
+        public Day02(ILoader loader) => _loader = loader;
 
         public string SolvePart1()
         {

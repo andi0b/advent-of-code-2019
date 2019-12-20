@@ -6,11 +6,11 @@ using System.Text;
 namespace AdventOfCode.Solutions
 {
     [Aoc(8)]
-    public class Day8 : IAocDay
+    public class Day08 : IAocDay
     {
         public string Input { get; set; }
 
-        public Day8(ILoader loader) => Input = loader.ReadAllText("Input.txt");
+        public Day08(ILoader loader) => Input = loader.ReadAllText("Input.txt");
 
         public IEnumerable<int[,]> FillLayers(string inputString, int width, int height)
         {

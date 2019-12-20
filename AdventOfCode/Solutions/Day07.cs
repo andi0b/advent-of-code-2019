@@ -6,11 +6,11 @@ using AdventOfCode.Solutions.Intcode;
 namespace AdventOfCode.Solutions
 {
     [Aoc(7)]
-    public class Day7 : IAocDay
+    public class Day07 : IAocDay
     {
         public string Input { get; set; }
 
-        public Day7(ILoader loader) => Input = loader.ReadAllText("Input.txt");
+        public Day07(ILoader loader) => Input = loader.ReadAllText("Input.txt");
 
         public string SolvePart1() => $"highest signal that can be sent to the thrusters: {SolvePart1Internal()}";
         public string SolvePart2() => $"highest signal that can be sent to the thrusters {SolvePart2Internal()}";

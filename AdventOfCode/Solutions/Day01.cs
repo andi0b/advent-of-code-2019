@@ -4,10 +4,10 @@ using System.Linq;
 namespace AdventOfCode.Solutions
 {
     [Aoc(1)]
-    public class Day1 : IAocDay
+    public class Day01 : IAocDay
     {
         private ILoader _loader;
-        public Day1(ILoader loader) => _loader = loader;
+        public Day01(ILoader loader) => _loader = loader;
 
         public string SolvePart1() => Solve(CalculateRequiredFuel);
         public string SolvePart2() => Solve(CalculateRequiredFuelIncludingFuelMass);

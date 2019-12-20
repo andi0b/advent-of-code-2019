@@ -7,13 +7,13 @@ using System.Linq;
 namespace AdventOfCode.Solutions
 {
     [Aoc(3)]
-    public class Day3 : IAocDay
+    public class Day03 : IAocDay
     {
         private ILoader _loader;
         private Wire    _wire1;
         private Wire    _wire2;
 
-        public Day3(ILoader loader)
+        public Day03(ILoader loader)
         {
             _loader = loader;
 

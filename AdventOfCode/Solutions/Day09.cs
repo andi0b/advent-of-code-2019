@@ -7,11 +7,11 @@ using AdventOfCode.Solutions.Intcode;
 namespace AdventOfCode.Solutions
 {
     [Aoc(9)]
-    public class Day9 : IAocDay
+    public class Day09 : IAocDay
     {
         public string Input { get; set; }
 
-        public Day9(ILoader loader) => Input = loader.ReadAllText("Input.txt");
+        public Day09(ILoader loader) => Input = loader.ReadAllText("Input.txt");
 
 
         public string SolvePart1()

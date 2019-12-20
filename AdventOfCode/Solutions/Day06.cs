@@ -6,12 +6,12 @@ using AdventOfCode.Solutions.Intcode;
 namespace AdventOfCode.Solutions
 {
     [Aoc(6)]
-    public class Day6 : IAocDay
+    public class Day06 : IAocDay
     {
         private Dictionary<string, string> _outerToInnerMap;
         private IEnumerable<string> _allObjects;
 
-        public Day6(ILoader loader) => LoadInput(loader.ReadAllLines("Input.txt"));
+        public Day06(ILoader loader) => LoadInput(loader.ReadAllLines("Input.txt"));
 
         public void LoadInput(string[] input)
         {

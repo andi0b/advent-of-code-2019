@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Tests
 {
-    public class Day7Test
+    public class Day07Test
     {
-        private readonly Day7 _solution = Program.CreateContainer().Resolve<Day7>();
+        private readonly Day07 _solution = Program.CreateContainer().Resolve<Day07>();
 
         [Theory]
         [InlineData("3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0", 43210)]

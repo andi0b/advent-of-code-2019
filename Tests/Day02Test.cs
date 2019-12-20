@@ -6,9 +6,9 @@ using Xunit;
 
 namespace Tests
 {
-    public class Day2Test
+    public class Day02Test
     {
-        private readonly Day2 _solution = Program.CreateContainer().Resolve<Day2>();
+        private readonly Day02 _solution = Program.CreateContainer().Resolve<Day02>();
 
         private const string Part1Example = "1,9,10,3,2,3,11,0,99,30,40,50";
 
@@ -19,7 +19,7 @@ namespace Tests
          InlineData(Part1Example, 3, new[] {30, 40, 50}),
         ]
         public void GetStatementById(string input, int statementId, int[] expected)
-            => new Day2.IntcodeProgram(input).GetStatement(statementId).Should().BeEquivalentTo(expected);
+            => new Day02.IntcodeProgram(input).GetStatement(statementId).Should().BeEquivalentTo(expected);
 
         [Theory,
          InlineData(Part1Example, 3500),
@@ -29,6 +29,6 @@ namespace Tests
          InlineData("1,1,1,4,99,5,6,0,99", 30),
         ]
         public void RunToEnd(string input, int expected)
-            => new Day2.IntcodeComputer(new Day2.IntcodeProgram(input)).RunToEnd().Should().Be(expected);
+            => new Day02.IntcodeComputer(new Day02.IntcodeProgram(input)).RunToEnd().Should().Be(expected);
     }
 }

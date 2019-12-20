@@ -6,9 +6,9 @@ using Xunit;
 
 namespace Tests
 {
-    public class Day6Test
+    public class Day06Test
     {
-        private readonly Day6 _solution = Program.CreateContainer().Resolve<Day6>();
+        private readonly Day06 _solution = Program.CreateContainer().Resolve<Day06>();
 
         [Fact]
         public void Part1Example()
