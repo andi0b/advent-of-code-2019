@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -29,15 +30,22 @@ namespace AdventOfCode
 
             var orderedDays = selectedDays.OrderBy(x => x.Metadata.Day).ToList();
 
+            var sw = new Stopwatch();
+            
             foreach (var day in orderedDays)
             {
+                
                 Console.Write($"Running Day {day.Metadata.Day} Part 1... ");
+                sw.Restart();
                 var solution1 = day.Value.SolvePart1();
-                Console.WriteLine($"Solution: {solution1}");
+                sw.Stop();
+                Console.WriteLine($"[{sw.Elapsed}] Solution: {solution1}");
                 
                 Console.Write($"Running Day {day.Metadata.Day} Part 2... ");
+                sw.Restart();
                 var solution2 = day.Value.SolvePart2();
-                Console.WriteLine($"Solution: {solution2}");
+                sw.Stop();
+                Console.WriteLine($"[{sw.Elapsed}] Solution: {solution2}");
 
                 Console.WriteLine();
             }
